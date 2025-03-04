@@ -37,15 +37,18 @@
           </div>
 
           <!-- Chatbox at Bottom -->
-          <div class="card mt-5 p-3" x-data="{ newMessage: '' }">
+          <div class="card mt-5 p-3 bg-dark" x-data="{ newMessage: '' }">
             <div class="d-flex gap-2">
-              <textarea class="form-control" rows="2" placeholder="Type your message..."
-                x-model="newMessage"
-                @keydown.enter.prevent="if (!event.shiftKey) sendMessage()"></textarea>
-              <button class="btn btn-primary" @click="sendMessage">Send</button>
+              <textarea class="form-control bg-dark text-white border-light" rows="2" placeholder="Type your message..."
+                x-model="newMessage" @keydown.enter.prevent="if (!event.shiftKey) sendMessage()"></textarea>
+              <button class="btn btn-primary px-5" @click="sendMessage">Send</button>
+              <div class="d-flex flex-column justify-content-center align-items-center">
+                <button class="btn btn-danger px-5" disabled>Call</button>
+                <small class="mt-2 text-light">Coming soon</small>
+              </div>
             </div>
           </div>
-          
+
         </div>
 
       </div>
@@ -72,6 +75,10 @@
           document.addEventListener("click", startChat);
         },
 
+        setTyping(val) {
+          this.isTyping = val
+          this.$refs.chatContainer.scrollTop = this.$refs.chatContainer.scrollHeight;
+        },
         sendMessage() {
           if (this.newMessage.trim() !== "") {
             this.messages.push({ user: "User", text: this.newMessage });
@@ -82,9 +89,8 @@
               this.$refs.chatContainer.scrollTop = this.$refs.chatContainer.scrollHeight;
             });
 
-            this.isTyping = true;
+            this.setTyping(true);
 
-           
             fetch("https://n8n.nitro-test.co.uk/webhook/nitro-test-chat", {
               method: "POST",
               headers: {
@@ -100,7 +106,7 @@
               .then(data => {
                 if (data.output) {
                   this.addMessage("Nitro AI Agent", data.output);
-                  this.isTyping = false;
+                  this.setTyping(false);
                 }
               })
               .catch(error => console.error("Error:", error));
@@ -108,7 +114,7 @@
         },
 
         generateSessionId() {
-          return 'session-' + Math.random().toString(36).substr(2, 9); 
+          return 'session-' + Math.random().toString(36).substr(2, 9);
         },
 
         addMessage(user, text) {
@@ -126,7 +132,6 @@
       }));
     });
   </script>
-
 </body>
 
 </html>
